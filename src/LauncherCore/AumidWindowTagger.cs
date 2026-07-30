@@ -2,12 +2,6 @@ using System.Runtime.InteropServices;
 
 namespace LauncherCore;
 
-/// <summary>
-/// Applique (ou relit) un AppUserModelID directement sur une fenêtre au runtime,
-/// via SHGetPropertyStoreForWindow + PKEY_AppUserModel_ID.
-/// Extrait et nettoyé depuis GenshinSteamLauncher.Program et AumidWatcher.Program
-/// (code identique dans les deux, désormais centralisé ici).
-/// </summary>
 public static class AumidWindowTagger
 {
     public static readonly Guid PKEY_AppUserModel_ID_FormatId = new("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3");
@@ -62,10 +56,7 @@ public static class AumidWindowTagger
         }
     }
 
-    /// <summary>
-    /// Relit l'AUMID actuellement appliqué sur la fenêtre. Utile pour diagnostic/tests,
-    /// pas nécessaire dans le chemin critique du lancement.
-    /// </summary>
+   
     public static string? Read(IntPtr hwnd)
     {
         if (hwnd == IntPtr.Zero) return null;
