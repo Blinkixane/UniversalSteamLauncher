@@ -1,10 +1,7 @@
 ; UniversalSteamLauncher.iss
 ; ------------------------------------------------------------------
-; Compile avec Inno Setup (gratuit) : https://jrsoftware.org/isinfo.php
-; 1. Lance d'abord build-release.ps1 (remplit dist\).
-; 2. Ouvre ce fichier dans Inno Setup Compiler, ou en ligne de commande :
-;      iscc UniversalSteamLauncher.iss
-; Produit : Output\UniversalSteamLauncherSetup.exe
+; Compile with Inno Setup (freeware) : https://jrsoftware.org/isinfo.php
+; 1. Please execute the build-release.ps1  ( dist\) first.
 ; ------------------------------------------------------------------
 
 #define MyAppName "Universal Steam Launcher"
