@@ -3,10 +3,6 @@ using System.Linq;
 
 namespace LauncherCore;
 
-/// <summary>
-/// Attend qu'un processus donné expose une fenêtre principale visible, avec timeout.
-/// Factorise la boucle de polling déjà utilisée dans GenshinSteamLauncher et AumidWatcher.
-/// </summary>
 public static class ProcessWindowWaiter
 {
     /// <param name="processName">Nom du processus sans .exe (ex: "GenshinImpact").</param>
