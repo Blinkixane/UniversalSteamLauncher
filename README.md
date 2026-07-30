@@ -5,7 +5,7 @@
 <h1 align="center">Universal Steam Launcher</h1>
 
 <p align="center">
-Create standalone Steam launchers with native Windows integration.
+Create Windows launchers for any application or game and run them through Steam with proper taskbar integration.
 </p>
 
 <p align="center">
@@ -20,8 +20,16 @@ Create standalone Steam launchers with native Windows integration.
   <img src="Assets/Banner.png" width="900" alt="Universal Steam Launcher banner">
 </p>
 
-Universal Steam Launcher is an open-source Windows application that generates standalone Steam launchers with proper Windows integration. Each launcher supports custom icons, AppUserModelID (AUMID), taskbar grouping, and desktop or Start Menu shortcuts.
+Universal Steam Launcher allows you to create custom launchers for any Windows executable (.exe) and start them through Steam.
 
+Unlike traditional shortcuts or previous launcher solutions, generated launchers use proper Windows AppUserModelID (AUMID) integration, preventing duplicate taskbar icons and providing a native Windows application experience.
+
+Features include:
+- Custom icons
+- Start Menu and desktop shortcuts
+- Taskbar grouping
+- Steam URI support
+- AUMID-based Windows integration
 ## Screenshots
 
 <p align="center">
@@ -41,6 +49,22 @@ Launcher Generator
 Generated launcher integration
 </p>
 
+## The story of the project
+
+This project started from a simple issue:
+
+I wanted to launch non-Steam applications and games through Steam while keeping a proper Windows experience.
+
+Traditional Steam shortcuts or custom launchers often have Windows integration problems:
+
+- Duplicate taskbar icons when an application is pinned
+- Incorrect taskbar grouping
+- Missing or incorrect application icons
+- Shortcuts that do not behave like native Windows applications
+
+Existing solutions could launch the application, but they did not properly handle Windows AppUserModelID (AUMID) integration.
+
+Universal Steam Launcher was created to solve this problem by generating dedicated launchers that behave like native Windows applications while still launching any `.exe` through Steam.
 
 ## Features
 
