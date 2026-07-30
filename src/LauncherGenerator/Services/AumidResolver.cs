@@ -37,13 +37,7 @@ public class AumidResolver
         return null;
     }
 
-    /// <summary>
-    /// Parseur CSV minimal mais correct : respecte les champs entre guillemets
-    /// (avec "" comme guillemet echappe) et les virgules a l'interieur.
-    /// Le Split(',') naif utilise precedemment cassait des que le champ AppID
-    /// contenait des caracteres qui forcaient PowerShell a le quoter, d'ou les
-    /// guillemets residuels observes dans les launcher.json generes.
-    /// </summary>
+  
     private static string[] ParseCsvLine(string line)
     {
         line = line.TrimEnd('\r', '\n');
@@ -62,7 +56,7 @@ public class AumidResolver
                     if (i + 1 < line.Length && line[i + 1] == '"')
                     {
                         current.Append('"');
-                        i++; // guillemet echappe, on saute le second
+                        i++; 
                     }
                     else
                     {
