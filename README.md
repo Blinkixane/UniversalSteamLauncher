@@ -142,6 +142,12 @@ The compiled files will be available in:
 ```text
 dist/
 ```
+## Support
+
+If you enjoy Universal Steam Launcher and want to support future development, you can support the project here:
+
+Coming soon ☕ (in the next months)
+
 
 ## Architecture
 ```mermaid
