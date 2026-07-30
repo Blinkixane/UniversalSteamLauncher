@@ -1,0 +1,22 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# .NET build
+bin/
+obj/
+
+# Publish output
+dist/
+publish/
+
+# Inno Setup
+Installer/Output/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/

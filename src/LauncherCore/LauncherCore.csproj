@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LauncherCore</RootNamespace>
+    <AssemblyName>LauncherCore</AssemblyName>
+
+    <!-- Cette lib s'appuie sur des API Windows (COM shell32/ole32) : elle ne tourne que sous Windows,
+         mais on garde le TFM générique net8.0 pour rester cohérent avec les autres projets du repo. -->
+    <Product>LauncherCore</Product>
+    <Description>Briques réutilisables pour tagger l'AUMID d'une fenêtre et lire/écrire l'AUMID d'un raccourci .lnk épinglé.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="securifybv.ShellLink" Version="0.1.0" />
+  </ItemGroup>
+
+</Project>

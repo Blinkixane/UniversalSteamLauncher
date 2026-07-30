@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <OutputType>WinExe</OutputType>
+	<TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>UniversalSteamLauncher</RootNamespace>
+    <AssemblyName>UniversalSteamLauncher</AssemblyName>
+
+    <!-- Custom icon for the executable -->
+    <!-- Place a UniversalSteamLauncher.ico" file in the project folder if you want a custom icon -->
+	  <ApplicationIcon>..\..\Assets\AppIcon.ico</ApplicationIcon>
+    <!-- Application metadata -->
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ProductVersion>1.0.0.0</ProductVersion>
+    <Product>Universal Steam Launcher</Product>
+    <Description>Launcher for any application via Steam with taskbar grouping</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LauncherCore\LauncherCore.csproj" />
+    <ProjectReference Include="..\LauncherShared\LauncherShared.csproj" />
+  </ItemGroup>
+
+</Project>
