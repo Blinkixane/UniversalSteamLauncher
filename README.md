@@ -1,16 +1,46 @@
-# Universal Steam Launcher
-
-![License](https://img.shields.io/badge/license-MIT-green)
-![Platform](https://img.shields.io/badge/platform-Windows-blue)
-![Version](https://img.shields.io/badge/version-1.0.0-orange)
-
 <p align="center">
-  <img src="Assets/AppIcon.ico" width="128" />
+  <img src="Assets/AppIcon.png" width="128" alt="Universal Steam Launcher">
 </p>
 
-A Windows utility to create custom Steam-based launchers with proper Windows AppUserModelID (AUMID) integration.
+<h1 align="center">Universal Steam Launcher</h1>
 
-UniversalSteamLauncher allows applications and games launched through Steam to have better Windows integration, including custom icons, taskbar grouping, and shortcut management.
+<p align="center">
+Create standalone Steam launchers with native Windows integration.
+</p>
+
+<p align="center">
+
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
+![.NET](https://img.shields.io/badge/.NET-8-512BD4)
+![License](https://img.shields.io/badge/License-MIT-success)
+![Release](https://img.shields.io/github/v/release/Blinkixane/UniversalSteamLauncher)
+
+</p>
+<p align="center">
+  <img src="Assets/Banner.png" width="900" alt="Universal Steam Launcher banner">
+</p>
+
+Universal Steam Launcher is an open-source Windows application that generates standalone Steam launchers with proper Windows integration. Each launcher supports custom icons, AppUserModelID (AUMID), taskbar grouping, and desktop or Start Menu shortcuts.
+
+## Screenshots
+
+<p align="center">
+  <img src="Assets/Screenshots/generator.png" width="800">
+</p>
+
+<p align="center">
+Launcher Generator
+</p>
+
+
+<p align="center">
+  <img src="Assets/Screenshots/launcher.png" width="800">
+</p>
+
+<p align="center">
+Generated launcher integration
+</p>
+
 
 ## Features
 
@@ -73,16 +103,10 @@ Used to analyze and debug Windows AUMID behavior.
 
 ## Installation
 
-Download the latest installer from the Releases page.
-
-Run:
-
-```text
-UniversalSteamLauncherSetup.exe
-```
-
-and follow the installation wizard.
-
+1. Download the latest release.
+2. Run **UniversalSteamLauncherSetup.exe**.
+3. Follow the installation wizard.
+4. Launch Universal Steam Launcher.
 ## Build
 
 ### Requirements
@@ -111,20 +135,18 @@ dist/
 ```
 
 ## Architecture
+```mermaid
+flowchart TD
+    Generator[LauncherGenerator]
+    Core[LauncherCore]
+    Launcher[UniversalSteamLauncher]
+    Steam[Steam]
+    Windows[Windows Shell]
 
-```text
-LauncherGenerator
-        |
-        v
-LauncherCore
-        |
-        v
-UniversalSteamLauncher
-        |
-        v
-Windows Shell / Steam
+    Generator --> Core
+    Core --> Launcher
+    Launcher --> Steam
+    Launcher --> Windows
 ```
-
-## License
 
 This project is licensed under the MIT License.
