@@ -32,6 +32,15 @@ SetupIconFile=..\Assets\AppIcon.ico
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
+VersionInfoVersion={#MyAppVersion}
+VersionInfoProductVersion={#MyAppVersion}
+VersionInfoCompany=Blinkixane
+VersionInfoDescription=Universal Steam Launcher Setup
+VersionInfoProductName=Universal Steam Launcher
+VersionInfoCopyright=Copyright (c) 2026 Blinkixane
+
+LicenseFile=..\LICENSE
+
 [Languages]
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
