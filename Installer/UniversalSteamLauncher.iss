@@ -22,10 +22,6 @@ Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 SetupIconFile=..\Assets\AppIcon.ico
-; L'installation dans Program Files necessite l'admin (une seule fois, a
-; l'installation) - a ne pas confondre avec l'UAC demande a CHAQUE lancement
-; de UniversalSteamLauncher.exe (necessaire pour le tag AUMID runtime, voir
-; app.manifest du projet).
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
@@ -43,8 +39,6 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-; Copie tout le dossier dist\ depuis la racine du projet.
-; Contient les deux exécutables autonomes.
 Source: "..\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
@@ -72,10 +66,6 @@ Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Ext
 Filename: "{app}\{#MyAppExeName}";Description: "{cm:RunNow}"; Flags: nowait postinstall skipifsilent
 
 [Code]
-// Ecrit la langue choisie dans l'assistant d'installation (french/english,
-// voir [Languages] ci-dessus) dans un petit fichier "lang.txt" a cote des
-// exe installes. LauncherShared.AppLanguageProvider le lit au demarrage
-// pour savoir dans quelle langue afficher les textes du generateur.
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   LangCode: String;
