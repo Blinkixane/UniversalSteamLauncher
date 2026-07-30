@@ -100,6 +100,15 @@ Utilities used during development:
 * AumidWatcher
 
 Used to analyze and debug Windows AUMID behavior.
+## Tools
+
+### Get-Aumid.ps1
+
+A PowerShell utility to retrieve the AppUserModelID (AUMID) of installed Windows applications.
+
+Usage:
+
+powershell :  .\Tools\Get-Aumid.ps1
 
 ## Installation
 
