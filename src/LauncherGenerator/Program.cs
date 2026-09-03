@@ -2,6 +2,8 @@ using LauncherCore;
 using LauncherGenerator.Services;
 using LauncherShared;
 using LauncherShared.Models;
+using System.Threading;
+using System.Windows.Forms;
 
 Console.WriteLine("================================");
 Console.WriteLine(Strings.Get("banner.title"));
@@ -32,7 +34,12 @@ string steamUri = steamInput.StartsWith("steam://", StringComparison.OrdinalIgno
     : $"steam://rungameid/{steamInput}";
 
 Console.Write(Strings.Get("prompt.exePath"));
-string exePath = (Console.ReadLine() ?? "").Trim('"');
+string? exePath = SelectExecutable();
+if (exePath == null)
+{
+    Console.WriteLine(Strings.Get("dialog.exe.cancelled"));
+    return;
+}
 
 Console.Write(Strings.Get("prompt.iconPath"));
 string iconInput = (Console.ReadLine() ?? "").Trim('"');
@@ -61,7 +68,7 @@ Console.WriteLine(Strings.Get("summary.name", name));
 Console.WriteLine(Strings.Get("summary.steam", steamUri));
 Console.WriteLine(Strings.Get("summary.exe", exePath));
 Console.WriteLine(Strings.Get("summary.icon", icon));
-Console.WriteLine(Strings.Get("summary.aumid", aumid));
+Console.WriteLine(Strings.Get("summary.aumid", aumid ?? ""));
 
 var config = new LauncherConfig
 {
@@ -131,4 +138,44 @@ static string FindUniversalLauncherExe()
     }
 
     throw new FileNotFoundException(Strings.Get("error.launcherNotFound"));
+}
+
+static string? SelectExecutable()
+{
+    string? selectedPath = null;
+    Exception? dialogError = null;
+
+    var dialogThread = new Thread(() =>
+    {
+        try
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = Strings.Get("dialog.exe.title"),
+                Filter = Strings.Get("dialog.exe.filter"),
+                CheckFileExists = true,
+                Multiselect = false,
+                RestoreDirectory = true
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+                selectedPath = dialog.FileName;
+        }
+        catch (Exception ex)
+        {
+            dialogError = ex;
+        }
+    });
+
+    dialogThread.SetApartmentState(ApartmentState.STA);
+    dialogThread.Start();
+    dialogThread.Join();
+
+    if (dialogError != null)
+        throw new InvalidOperationException("Impossible d'ouvrir la fenêtre de sélection de fichier.", dialogError);
+
+    return selectedPath;
 }

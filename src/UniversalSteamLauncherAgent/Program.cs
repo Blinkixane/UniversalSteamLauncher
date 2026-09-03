@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Security.Principal;
+using System.Text;
 using System.Text.Json;
 using LauncherCore;
 using LauncherShared;
@@ -6,6 +8,7 @@ using LauncherShared.Models;
 
 const string MutexName = "Local\\UniversalSteamLauncher.AumidAgent";
 const string StopEventName = "Local\\UniversalSteamLauncher.AumidAgent.Stop";
+const string TaskName = "Universal Steam Launcher AUMID Agent";
 
 string logPath = Path.Combine(Path.GetTempPath(), "UniversalSteamLauncherAgent.log");
 
@@ -15,12 +18,19 @@ if (args.Any(arg => string.Equals(arg, "--stop", StringComparison.OrdinalIgnoreC
     {
         using var stopEvent = EventWaitHandle.OpenExisting(StopEventName);
         stopEvent.Set();
+        WaitForAgentToStop();
     }
     catch (WaitHandleCannotBeOpenedException)
     {
         // L'agent n'est pas en cours d'execution.
     }
 
+    return;
+}
+
+if (args.Any(arg => string.Equals(arg, "--install-task", StringComparison.OrdinalIgnoreCase)))
+{
+    Environment.ExitCode = InstallScheduledTask();
     return;
 }
 
@@ -169,6 +179,78 @@ void Log(string message)
     catch
     {
         // Un agent d'arriere-plan ne doit pas s'arreter a cause du fichier log.
+    }
+}
+
+int InstallScheduledTask()
+{
+    try
+    {
+        string agentPath = Environment.ProcessPath
+            ?? throw new InvalidOperationException("Chemin de l'agent introuvable.");
+        string userName = WindowsIdentity.GetCurrent().Name;
+
+        string script = $@"
+$ErrorActionPreference = 'Stop'
+$action = New-ScheduledTaskAction -Execute '{EscapePowerShell(agentPath)}'
+$trigger = New-ScheduledTaskTrigger -AtLogOn
+$principal = New-ScheduledTaskPrincipal -UserId '{EscapePowerShell(userName)}' -LogonType Interactive -RunLevel Highest
+Register-ScheduledTask -TaskName '{EscapePowerShell(TaskName)}' -Action $action -Trigger $trigger -Principal $principal -Force -ErrorAction Stop | Out-Null
+Start-ScheduledTask -TaskName '{EscapePowerShell(TaskName)}' -ErrorAction Stop
+";
+
+        string encodedScript = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        startInfo.ArgumentList.Add("-NoProfile");
+        startInfo.ArgumentList.Add("-NonInteractive");
+        startInfo.ArgumentList.Add("-ExecutionPolicy");
+        startInfo.ArgumentList.Add("Bypass");
+        startInfo.ArgumentList.Add("-EncodedCommand");
+        startInfo.ArgumentList.Add(encodedScript);
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException("Impossible de lancer PowerShell.");
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+
+        Log($"Installation de la tache planifiee: code={process.ExitCode}, sortie={output}, erreur={error}");
+        return process.ExitCode;
+    }
+    catch (Exception ex)
+    {
+        Log($"Impossible d'installer la tache planifiee: {ex}");
+        return 1;
+    }
+}
+
+string EscapePowerShell(string value) => value.Replace("'", "''", StringComparison.Ordinal);
+
+void WaitForAgentToStop()
+{
+    DateTime deadline = DateTime.UtcNow.AddSeconds(10);
+
+    while (DateTime.UtcNow < deadline)
+    {
+        try
+        {
+            using var mutex = new Mutex(true, MutexName, out bool createdNew);
+            if (createdNew)
+                return;
+        }
+        catch
+        {
+            return;
+        }
+
+        Thread.Sleep(100);
     }
 }
 

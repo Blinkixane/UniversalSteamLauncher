@@ -63,8 +63,20 @@ public static class Strings
             "Steam URL (or just the rungameid ID) (found by creating a desktop shortcut for the non-Steam game: game settings -> Manage -> Create desktop shortcut): "),
 
         ["prompt.exePath"] = (
-            "Chemin de l'EXE lance par le bouton Jouer de Steam : ",
-            "Path to the EXE launched by Steam's Play button: "),
+            "Selectionne l'EXE lance par le bouton Jouer de Steam dans la fenetre qui va s'ouvrir : ",
+            "Select the EXE launched by Steam's Play button in the window that will open: "),
+
+        ["dialog.exe.title"] = (
+            "Selection de l'EXE lance par Steam",
+            "Select the EXE launched by Steam"),
+
+        ["dialog.exe.filter"] = (
+            "Fichiers executables (*.exe)|*.exe|Tous les fichiers (*.*)|*.*",
+            "Executable files (*.exe)|*.exe|All files (*.*)|*.*"),
+
+        ["dialog.exe.cancelled"] = (
+            "Aucun EXE selectionne. Generation annulee.",
+            "No EXE selected. Generation cancelled."),
 
         ["prompt.iconPath"] = (
             "Chemin icone .ico (optionnel, Entree = utilise l'exe du jeu) : ",
