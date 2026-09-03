@@ -69,7 +69,7 @@ Universal Steam Launcher was created to solve this problem by generating dedicat
 ## Features
 
 * Steam game launcher generation
-* Windows AppUserModelID (AUMID) support
+* Windows AppUserModelID (AUMID) support , steam button play support (V1.1)
 * Custom icon support
 * Native Windows taskbar integration
 * Automatic launcher generation
