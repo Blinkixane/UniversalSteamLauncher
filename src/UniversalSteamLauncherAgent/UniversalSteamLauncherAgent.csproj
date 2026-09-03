@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>UniversalSteamLauncherAgent</RootNamespace>
+    <AssemblyName>UniversalSteamLauncherAgent</AssemblyName>
+    <ApplicationIcon>..\..\Assets\AppIcon.ico</ApplicationIcon>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ProductVersion>1.0.0.0</ProductVersion>
+    <Product>Universal Steam Launcher</Product>
+    <Description>Background taskbar integration agent for Universal Steam Launcher</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LauncherCore\LauncherCore.csproj" />
+    <ProjectReference Include="..\LauncherShared\LauncherShared.csproj" />
+  </ItemGroup>
+
+</Project>

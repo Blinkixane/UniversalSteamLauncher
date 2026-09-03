@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LauncherCore\LauncherCore.csproj" />
+    <ProjectReference Include="..\..\src\LauncherCore\LauncherCore.csproj" />
   </ItemGroup>
 
 </Project>

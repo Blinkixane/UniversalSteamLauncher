@@ -89,6 +89,10 @@ Responsible for:
 * Managing Windows integration
 * Applying AUMID runtime configuration
 
+### UniversalSteamLauncherAgent
+
+Background user-session agent installed with the setup. It watches the configured game executables and applies their AUMID when a non-Steam game is launched directly from Steam.
+
 ### LauncherGenerator
 
 Tool used to create custom launchers.
@@ -166,6 +170,8 @@ The compiled files will be available in:
 ```text
 dist/
 ```
+
+The release contains `UniversalSteamLauncher.exe`, `LauncherGenerator.exe`, and `UniversalSteamLauncherAgent.exe`. Compile `Installer\UniversalSteamLauncher.iss` with Inno Setup (or run `ISCC.exe Installer\UniversalSteamLauncher.iss`) to create the installer. The setup registers the background agent to start automatically when the user logs in.
 ## Support
 
 If you enjoy Universal Steam Launcher and want to support future development, you can support the project here:

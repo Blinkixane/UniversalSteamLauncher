@@ -70,34 +70,81 @@ class Program
 
         Log($"Config chargee : SteamUri={config.SteamUri}, Executable={config.Executable}, Aumid={config.Aumid}");
 
+        DateTime steamLaunchStartedAt = DateTime.UtcNow;
         Process.Start(new ProcessStartInfo(config.SteamUri) { UseShellExecute = true });
         Log("steam:// lance");
 
-        // Le nom de processus a surveiller est derive du champ Executable de
-        // la config, pas du nom affiche du jeu (les deux peuvent differer,
-        // ex: "Genshin" vs process reel "GenshinImpact").
         string processName = Path.GetFileNameWithoutExtension(config.Executable);
-        var proc = ProcessWindowWaiter.WaitForMainWindow(processName);
-
-        if (proc == null)
-        {
-            Log($"Fenetre de '{processName}' jamais trouvee apres 60s, abandon.");
-            Console.WriteLine($"Le jeu n'a pas ete detecte apres 60s (process attendu : {processName}).");
-            return 1;
-        }
-
-        Log($"Fenetre trouvee : PID {proc.Id}, hwnd {proc.MainWindowHandle}");
 
         if (string.IsNullOrWhiteSpace(config.Aumid))
         {
             Log("Aucun AUMID configure pour ce jeu, regroupement ignore.");
+            Process? procWithoutAumid = ProcessWindowWaiter.WaitForMainWindow(processName);
+            if (procWithoutAumid == null)
+            {
+                Log($"Fenetre de '{processName}' jamais trouvee apres 60s, abandon.");
+                Console.WriteLine($"Le jeu n'a pas ete detecte apres 60s (process attendu : {processName}).");
+                return 1;
+            }
+
             return 0;
         }
 
-        var result = AumidWindowTagger.Apply(proc.MainWindowHandle, config.Aumid, out var err);
-        Log($"Tag result: {result}, err: {err}");
+        var trackedProcessIds = new HashSet<int>();
+        var taggedWindowHandles = new HashSet<IntPtr>();
+        DateTime startupDeadline = DateTime.UtcNow.AddSeconds(60);
+        bool targetProcessSeen = false;
+        bool atLeastOneWindowTagged = false;
+        AumidWindowTagger.TagResult lastResult = AumidWindowTagger.TagResult.Exception;
+        string? lastError = null;
 
-        return result == AumidWindowTagger.TagResult.Success ? 0 : 1;
+        while (true)
+        {
+            IReadOnlyList<Process> processTree = ProcessWindowWaiter.FindProcessTree(
+                config.Executable,
+                steamLaunchStartedAt,
+                trackedProcessIds);
+
+            if (processTree.Count > 0)
+                targetProcessSeen = true;
+
+            foreach (Process process in processTree)
+            {
+                try
+                {
+                    IntPtr hwnd = process.MainWindowHandle;
+                    if (hwnd == IntPtr.Zero || !taggedWindowHandles.Add(hwnd))
+                        continue;
+
+                    lastResult = AumidWindowTagger.Apply(hwnd, config.Aumid, out lastError);
+                    Log($"Fenetre taggee : processus={process.ProcessName} PID={process.Id} hwnd={hwnd}, result={lastResult}, err={lastError}");
+
+                    if (lastResult == AumidWindowTagger.TagResult.Success)
+                        atLeastOneWindowTagged = true;
+                }
+                catch (Exception ex)
+                {
+                    lastError = $"{ex.GetType().Name} - {ex.Message}";
+                    Log($"Impossible de tagger le processus PID={process.Id}: {lastError}");
+                }
+            }
+
+            if (!targetProcessSeen && DateTime.UtcNow >= startupDeadline)
+            {
+                Log($"Fenetre de '{processName}' jamais trouvee apres 60s, abandon.");
+                Console.WriteLine($"Le jeu n'a pas ete detecte apres 60s (process attendu : {processName}).");
+                return 1;
+            }
+
+            if (targetProcessSeen && processTree.Count == 0)
+            {
+                Log($"Arbre du jeu termine. Fenetres taggees={taggedWindowHandles.Count}, dernier resultat={lastResult}, err={lastError}");
+                return atLeastOneWindowTagged ? 0 : 1;
+            }
+
+            Thread.Sleep(500);
+        }
+
     }
 
     static string? ParseGameArg(string[] args)

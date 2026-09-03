@@ -62,7 +62,9 @@ public static class Strings
             "Steam URL (ou juste l'ID rungameid) (trouvable en creeant un raccourci du jeu non steam sur le bureau (parametre du jeu -> gerer -> Creer un raccourci sur le bureau): ",
             "Steam URL (or just the rungameid ID) (found by creating a desktop shortcut for the non-Steam game: game settings -> Manage -> Create desktop shortcut): "),
 
-        ["prompt.exePath"] = ("Chemin EXE du jeu : ", "Game EXE path: "),
+        ["prompt.exePath"] = (
+            "Chemin de l'EXE lance par le bouton Jouer de Steam : ",
+            "Path to the EXE launched by Steam's Play button: "),
 
         ["prompt.iconPath"] = (
             "Chemin icone .ico (optionnel, Entree = utilise l'exe du jeu) : ",
@@ -90,7 +92,7 @@ public static class Strings
         ["summary.separator"] = ("----------------", "----------------"),
         ["summary.name"] = ("Nom      : {0}", "Name     : {0}"),
         ["summary.steam"] = ("Steam    : {0}", "Steam    : {0}"),
-        ["summary.exe"] = ("EXE      : {0}", "EXE      : {0}"),
+        ["summary.exe"] = ("EXE Steam : {0}", "Steam EXE : {0}"),
         ["summary.icon"] = ("Icone    : {0}", "Icon     : {0}"),
         ["summary.aumid"] = ("AUMID    : {0}", "AUMID    : {0}"),
 
