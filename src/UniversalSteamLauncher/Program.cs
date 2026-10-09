@@ -90,8 +90,8 @@ class Program
             return 0;
         }
 
-        var trackedProcessIds = new HashSet<int>();
-        var taggedWindowHandles = new HashSet<IntPtr>();
+        var trackedProcesses = new HashSet<ProcessIdentity>();
+        var taggedWindowHandles = new HashSet<(ProcessIdentity process, IntPtr hwnd)>();
         DateTime startupDeadline = DateTime.UtcNow.AddSeconds(60);
         bool targetProcessSeen = false;
         bool atLeastOneWindowTagged = false;
@@ -103,7 +103,7 @@ class Program
             IReadOnlyList<Process> processTree = ProcessWindowWaiter.FindProcessTree(
                 config.Executable,
                 steamLaunchStartedAt,
-                trackedProcessIds);
+                trackedProcesses);
 
             if (processTree.Count > 0)
                 targetProcessSeen = true;
@@ -113,7 +113,9 @@ class Program
                 try
                 {
                     IntPtr hwnd = process.MainWindowHandle;
-                    if (hwnd == IntPtr.Zero || !taggedWindowHandles.Add(hwnd))
+                    if (hwnd == IntPtr.Zero
+                        || !ProcessWindowWaiter.TryGetProcessIdentity(process, out ProcessIdentity identity)
+                        || !taggedWindowHandles.Add((identity, hwnd)))
                         continue;
 
                     lastResult = AumidWindowTagger.Apply(hwnd, config.Aumid, out lastError);

@@ -4,27 +4,39 @@ using System.Runtime.InteropServices;
 
 namespace LauncherCore;
 
+public readonly record struct ProcessIdentity(int ProcessId, DateTime StartedAtUtc);
+
 public static class ProcessWindowWaiter
 {
     public static IReadOnlyList<Process> FindProcessTree(
         string executablePath,
         DateTime startedAfterUtc,
-        ISet<int> trackedProcessIds)
+        ISet<ProcessIdentity> trackedProcesses)
     {
         string expectedName = Path.GetFileNameWithoutExtension(executablePath);
         string? expectedPath = TryGetFullPath(executablePath);
 
-        Process[] processes = Process.GetProcesses();
-        var processesById = processes.ToDictionary(process => process.Id);
-        var parentById = ReadParentProcessIds();
-        var treeIds = new HashSet<int>(trackedProcessIds);
+        ProcessSnapshot[] snapshots = Process.GetProcesses()
+            .Select(TryCreateSnapshot)
+            .Where(snapshot => snapshot.HasValue)
+            .Select(snapshot => snapshot!.Value)
+            .ToArray();
 
-        foreach (Process process in processes)
+        var snapshotsByIdentity = snapshots.ToDictionary(snapshot => snapshot.Identity);
+        var snapshotIdentityById = snapshots.ToDictionary(
+            snapshot => snapshot.Identity.ProcessId,
+            snapshot => snapshot.Identity);
+        var parentById = ReadParentProcessIds();
+        var treeIdentities = trackedProcesses
+            .Where(snapshotsByIdentity.ContainsKey)
+            .ToHashSet();
+
+        foreach (ProcessSnapshot snapshot in snapshots)
         {
-            if (IsTargetProcess(process, expectedName, expectedPath)
-                && WasStartedAfter(process, startedAfterUtc))
+            if (IsTargetProcess(snapshot.Process, expectedName, expectedPath)
+                && snapshot.Identity.StartedAtUtc >= startedAfterUtc)
             {
-                treeIds.Add(process.Id);
+                treeIdentities.Add(snapshot.Identity);
             }
         }
 
@@ -32,27 +44,45 @@ public static class ProcessWindowWaiter
         do
         {
             added = false;
-            foreach (Process process in processes)
+            foreach (ProcessSnapshot snapshot in snapshots)
             {
-                if (treeIds.Contains(process.Id))
+                if (treeIdentities.Contains(snapshot.Identity))
                     continue;
 
-                if (parentById.TryGetValue(process.Id, out int parentId)
-                    && treeIds.Contains(parentId))
+                if (parentById.TryGetValue(snapshot.Identity.ProcessId, out int parentId)
+                    && snapshotIdentityById.TryGetValue(parentId, out ProcessIdentity parentIdentity)
+                    && treeIdentities.Contains(parentIdentity))
                 {
-                    treeIds.Add(process.Id);
+                    treeIdentities.Add(snapshot.Identity);
                     added = true;
                 }
             }
         }
         while (added);
 
-        trackedProcessIds.UnionWith(treeIds);
+        trackedProcesses.Clear();
+        trackedProcesses.UnionWith(treeIdentities);
 
-        return treeIds
-            .Where(processesById.ContainsKey)
-            .Select(id => processesById[id])
+        return treeIdentities
+            .Where(snapshotsByIdentity.ContainsKey)
+            .Select(identity => snapshotsByIdentity[identity].Process)
             .ToArray();
+    }
+
+    public static bool TryGetProcessIdentity(Process process, out ProcessIdentity identity)
+    {
+        try
+        {
+            identity = new ProcessIdentity(
+                process.Id,
+                process.StartTime.ToUniversalTime());
+            return true;
+        }
+        catch
+        {
+            identity = default;
+            return false;
+        }
     }
 
     /// <param name="processName">Nom du processus sans .exe (ex: "GenshinImpact").</param>
@@ -78,8 +108,15 @@ public static class ProcessWindowWaiter
 
     private static bool IsTargetProcess(Process process, string expectedName, string? expectedPath)
     {
-        if (!string.Equals(process.ProcessName, expectedName, StringComparison.OrdinalIgnoreCase))
+        try
+        {
+            if (!string.Equals(process.ProcessName, expectedName, StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+        catch
+        {
             return false;
+        }
 
         if (expectedPath == null)
             return true;
@@ -88,7 +125,7 @@ public static class ProcessWindowWaiter
         {
             string? actualPath = process.MainModule?.FileName;
             if (actualPath == null)
-                return true;
+                return false;
 
             return string.Equals(
                 TryGetFullPath(actualPath),
@@ -97,21 +134,21 @@ public static class ProcessWindowWaiter
         }
         catch
         {
-            return true;
+            // Un chemin non verifiable ne doit jamais etre associe a une
+            // configuration : cela pourrait appliquer le mauvais AUMID.
+            return false;
         }
     }
 
-    private static bool WasStartedAfter(Process process, DateTime startedAfterUtc)
+    private static ProcessSnapshot? TryCreateSnapshot(Process process)
     {
-        try
-        {
-            return process.StartTime.ToUniversalTime() >= startedAfterUtc;
-        }
-        catch
-        {
-            return true;
-        }
+        if (!TryGetProcessIdentity(process, out ProcessIdentity identity))
+            return null;
+
+        return new ProcessSnapshot(process, identity);
     }
+
+    private readonly record struct ProcessSnapshot(Process Process, ProcessIdentity Identity);
 
     private static string? TryGetFullPath(string path)
     {

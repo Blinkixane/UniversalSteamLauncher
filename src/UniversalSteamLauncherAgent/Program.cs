@@ -102,7 +102,7 @@ void TagProcessTree(WatchState state)
         processes = ProcessWindowWaiter.FindProcessTree(
             state.Executable,
             DateTime.MinValue,
-            state.TrackedProcessIds);
+            state.TrackedProcesses);
     }
     catch (Exception ex)
     {
@@ -115,7 +115,9 @@ void TagProcessTree(WatchState state)
         try
         {
             IntPtr hwnd = process.MainWindowHandle;
-            if (hwnd == IntPtr.Zero || !state.TaggedWindowHandles.Add((process.Id, hwnd)))
+            if (hwnd == IntPtr.Zero
+                || !ProcessWindowWaiter.TryGetProcessIdentity(process, out ProcessIdentity identity)
+                || !state.TaggedWindowHandles.Add((identity, hwnd)))
                 continue;
 
             AumidWindowTagger.TagResult result = AumidWindowTagger.Apply(
@@ -123,7 +125,7 @@ void TagProcessTree(WatchState state)
                 state.Aumid,
                 out string? error);
 
-            Log($"Fenetre taggee: processus={process.ProcessName} PID={process.Id} hwnd={hwnd}, result={result}, err={error}");
+            Log($"Fenetre taggee: processus={process.ProcessName} PID={process.Id} demarre={identity.StartedAtUtc:O} hwnd={hwnd}, result={result}, err={error}");
         }
         catch (Exception ex)
         {
@@ -264,8 +266,8 @@ sealed class WatchState
 
     public string Executable { get; }
     public string Aumid { get; }
-    public HashSet<int> TrackedProcessIds { get; } = new();
-    public HashSet<(int processId, IntPtr hwnd)> TaggedWindowHandles { get; } = new();
+    public HashSet<ProcessIdentity> TrackedProcesses { get; } = new();
+    public HashSet<(ProcessIdentity process, IntPtr hwnd)> TaggedWindowHandles { get; } = new();
 
     public bool Matches(LauncherConfig config) =>
         string.Equals(Executable, config.Executable, StringComparison.OrdinalIgnoreCase)
